@@ -1,0 +1,155 @@
+<x-public-layout>
+    <!-- Header -->
+    <div class="bg-[#004AAD] text-white py-16 text-center">
+        <h1 class="text-4xl font-extrabold tracking-tight">Our Services</h1>
+        <p class="text-[#BDDADB] mt-4 max-w-2xl mx-auto">Discover our range of outbound packages and additional services designed for your team.</p>
+    </div>
+
+    <!-- Packages Section -->
+    <div class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-[#004AAD] mb-8 border-l-4 border-[#28769A] pl-4">Main Packages</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach ($packages as $service)
+                <div class="bg-gray-50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="h-56 overflow-hidden relative">
+                         @if($service->image)
+                            <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" class="w-full h-full object-cover">
+                        @else
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">No Image</div>
+                        @endif
+                        <div class="absolute bottom-0 right-0 bg-[#004AAD] text-white px-4 py-1 text-sm font-bold rounded-tl-lg">
+                            @if($service->price)
+                                Rp. {{ number_format((float)$service->price, 0, ',', '.') }} {{ $service->price_unit ?? '' }}
+                            @else
+                                Hubungi kami
+                            @endif
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">{{ $service->title }}</h3>
+                        
+                        @if($service->subtitle)
+                            <p class="text-[#28769A] text-sm mb-3">{{ $service->subtitle }}</p>
+                        @endif
+
+                        <!-- Features List -->
+                        @if($service->features && count($service->features) > 0)
+                            <div class="mb-4 space-y-2">
+                                @foreach($service->features as $feature)
+                                    <div class="flex items-center text-sm">
+                                        <svg class="w-4 h-4 mr-2 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span class="text-gray-700">{{ $feature }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif($service->description)
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-3">
+                                {{ Str::limit($service->description, 100) }}
+                            </p>
+                        @endif
+
+                        <a href="{{ route('services.show', $service) }}" class="block w-full text-center bg-[#28769A] hover:bg-[#004AAD] text-white font-bold py-2 rounded-lg transition-colors">
+                            Lihat Detail →
+                        </a>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    <!-- Add-ons Section -->
+    <div class="py-16 bg-[#f0f9ff]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-[#004AAD] mb-8 border-l-4 border-[#28769A] pl-4">Additional Services (Opsional)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                @php
+                    // Icon mapping based on common addon keywords
+                    $iconMap = [
+                        'sound' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>',
+                        'dokumentasi' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>',
+                        'foto' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>',
+                        'video' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>',
+                        'makan' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>',
+                        'catering' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>',
+                        'konsumsi' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>',
+                        'transport' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>',
+                        'bus' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>',
+                        'guide' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>',
+                        'fasilitator' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>',
+                        'asuransi' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>',
+                        'p3k' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>',
+                        'default' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>'
+                    ];
+                    
+                    $gradients = [
+                        'from-blue-400 to-blue-600',
+                        'from-purple-400 to-purple-600',
+                        'from-pink-400 to-pink-600',
+                        'from-green-400 to-green-600',
+                        'from-yellow-400 to-yellow-600',
+                        'from-red-400 to-red-600',
+                        'from-indigo-400 to-indigo-600',
+                        'from-teal-400 to-teal-600',
+                    ];
+                @endphp
+                
+                @foreach ($addons as $index => $addon)
+                @php
+                    // Detect icon based on title keywords
+                    $icon = $iconMap['default'];
+                    $titleLower = strtolower($addon->title);
+                    foreach ($iconMap as $keyword => $iconPath) {
+                        if (str_contains($titleLower, $keyword)) {
+                            $icon = $iconPath;
+                            break;
+                        }
+                    }
+                    $gradient = $gradients[$index % count($gradients)];
+                @endphp
+                <div class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <!-- Header: Image or Icon with Gradient -->
+                    @if($addon->image)
+                        <!-- Use uploaded image -->
+                        <div class="h-48 overflow-hidden relative">
+                            <img src="{{ asset('storage/' . $addon->image) }}" alt="{{ $addon->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <h3 class="absolute bottom-4 left-4 right-4 font-bold text-xl text-white">{{ $addon->title }}</h3>
+                        </div>
+                    @else
+                        <!-- Use icon with gradient (fallback) -->
+                        <div class="bg-gradient-to-br {{ $gradient }} p-6 text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                            <div class="relative z-10">
+                                <div class="w-16 h-16 mx-auto bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {!! $icon !!}
+                                    </svg>
+                                </div>
+                                <h3 class="font-bold text-lg text-white">{{ $addon->title }}</h3>
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <p class="text-[#004AAD] font-bold text-xl mb-3 text-center">
+                            @if($addon->price)
+                                Rp. {{ number_format((float)$addon->price, 0, ',', '.') }} {{ $addon->price_unit ?? '' }}
+                            @else
+                                Hubungi kami
+                            @endif
+                        </p>
+                        <p class="text-gray-600 text-sm text-center leading-relaxed">{{ $addon->description }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</x-public-layout>
