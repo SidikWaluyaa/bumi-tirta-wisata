@@ -8,6 +8,8 @@
     <title>{{ config('app.name', 'Bumi Tirta Wisata') }}</title>
 
     <!-- Scripts -->
+    <link rel="icon" href="{{ asset('assets/img/favicon.png') }}" type="image/png">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans text-gray-900 antialiased overflow-x-hidden">
