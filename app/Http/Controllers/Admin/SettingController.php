@@ -17,28 +17,34 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        // Bulk update
-        $data = $request->except(['_token', '_method', 'files']);
+        $settings = Setting::all();
 
-        foreach ($data as $key => $value) {
-            $setting = Setting::where('key', $key)->first();
-            if ($setting) {
-                $setting->update(['value' => $value]);
-            }
-        }
+        foreach ($settings as $setting) {
+            // PHP converts dots variables to underscores in request
+            $inputKey = str_replace('.', '_', $setting->key);
 
-        // Handle File Uploads (specifically 'logo' or others)
-        if ($request->hasFile('logo')) {
-            $setting = Setting::where('key', 'logo')->first();
-            if ($setting) {
-                if ($setting->value) {
-                    Storage::disk('public')->delete($setting->value);
+            if ($setting->type === 'image') {
+                if ($request->hasFile($inputKey)) {
+                    // Delete old image if exists
+                    if ($setting->value && Storage::disk('public')->exists($setting->value)) {
+                        Storage::disk('public')->delete($setting->value);
+                    }
+                    
+                    // Upload new image
+                    $path = $request->file($inputKey)->store('settings', 'public');
+                    $setting->update(['value' => $path]);
                 }
-                $path = $request->file('logo')->store('settings', 'public');
-                $setting->update(['value' => $path]);
+            } else {
+                // Update text/textarea if present in request
+                if ($request->has($inputKey)) {
+                    $setting->update(['value' => $request->input($inputKey)]);
+                }
             }
         }
 
-        return redirect()->route('admin.settings.index')->with('success', 'Settings berhasil diupdate!');
+        // Clear the cache for global settings so the frontend updates immediately
+        \Illuminate\Support\Facades\Cache::forget('global_settings');
+
+        return redirect()->route('admin.settings.index')->with('success', 'Settings updated successfully!');
     }
 }
